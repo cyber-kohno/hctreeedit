@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML/CSS Tree Maintener</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header>
+        <p class="title">HTML/CSS Tree Maintener</p>
+        <p class="version">v1.0</p>
+    </header>
+    <div id="main">
+        <div id="system">
+            <div class="tab-list">
+                <div class="tab-menu" onclick="selectTab(this)"><span>Workspace</span></div>
+                <div class="tab-menu" onclick="selectTab(this)"><span>Source</span></div>
+                <div class="tab-menu" onclick="selectTab(this)"><span>Setting</span></div>
+            </div>
+            <div class="cont-list">
+                <div class="contents" id="cont-workspace">
+                    <div class="half">
+                        <div class="border" id="css-frame">
+                            <div id="css-tree"></div>
+                            <div id="css-prop">
+                                <input type="text" id="css-selector">
+                                <textarea id="css-property"></textarea>
+                                <div class="btn">cancel</div>
+                                <div class="btn" onclick="enterCss()">update</div>
+                            </div>
+                            <div class="menu-window" id="css-menu">
+                                <div class="item" onclick="editCss()">Edit</div>
+                                <div class="item" onclick="addChildOnCssTree()">Add child</div>
+                                <div class="item">Remove self</div>
+                                <div class="item" onclick="removeCssChild(this)">Remove child</div>
+                                <div class="item">Remove self and child</div>
+                                <div class="item">Cut</div>
+                                <div class="item">Copy</div>
+                                <div class="item">Insert parent</div>
+                                <div class="item">Paste note</div>
+                            </div>
+                        </div>
+                        <div class="border" id="html-frame">
+                            <div id="html-tree"></div>
+                            <div id="html-prop">
+                                <div id="html-tab">
+                                    <div class="tab-list">
+                                        <div class="tab-menu" onclick="selectTab(this)"><span>Tag</span></div>
+                                        <div class="tab-menu" onclick="selectTab(this)"><span>Text</span></div>
+                                        <div class="tab-menu" onclick="selectTab(this)"><span>Style</span></div>
+                                    </div>
+                                    <div class="cont-list">
+                                        <div class="contents" id="cont-property">
+                                            <input type="text" list="tags" id="html-tag"></input>
+                                            <input type="text" id="html-id"></input>
+                                            <div id="html-class"><textarea></textarea></div>
+                                            <div id="html-attr"><textarea></textarea></div>
+                                            <div class="btn">cancel</div>
+                                            <div class="btn" onclick="enterHtml()">update</div>
+                                            <datalist id="tags">
+                                                <option value="p"></option>
+                                                <option value="span"></option>
+                                                <option value="a"></option>
+                                                <option value="div"></option>
+                                                <option value="ul"></option>
+                                                <option value="li"></option>
+                                                <option value="header"></option>
+                                                <option value="footer"></option>
+                                            </datalist>
+                                        </div>
+                                        <div class="contents" id="cont-text">
+                                            <textarea id="html-text"></textarea>
+                                            <div class="btn">cancel</div>
+                                            <div class="btn" onclick="enterText()">update</div>
+                                        </div>
+                                        <div class="contents" id="cont-style">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="menu-window" id="html-menu">
+                                <div class="item" onclick="editHtml()">Edit</div>
+                                <div class="item" onclick="addChildOnHtmlTree()">Add child</div>
+                                <div class="item" onclick="addTextContent()">Add text content</div>
+                                <div class="item" onclick="createStyle()">Create style</div>
+                                <div class="item">Remove self</div>
+                                <div class="item" onclick="removeHtmlChild(this)">Remove child</div>
+                                <div class="item">Remove self and child</div>
+                                <div class="item">Cut</div>
+                                <div class="item">Copy</div>
+                                <div class="item">Insert parent</div>
+                                <div class="item">Paste note</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="half">
+                        <div class="border" id="preview-frame">
+                            <!-- <div id="preview-operation"></div> -->
+                            <div id="preview-window"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contents" id="cont-source">
+                    <div id="source-html">
+                    </div>
+                    <div id="source-css">
+                    </div>
+                </div>
+                <div class="contents" id="cont-setting">
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Copyright c 2020 KOHNO All Rights Reserved.</p>
+    </footer>
+    <div id="front-window"></div>
+    <script type="text/javascript" src="script.js"></script>
+</body>
+
+</html>
