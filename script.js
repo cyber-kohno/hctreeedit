@@ -3,7 +3,7 @@ const TAB_INDEX_WORKSPACE = 0;
 const TAB_INDEX_SOURCE = 1;
 const TAB_INDEX_SETTING = 2;
 
-var touchedCssMenu = false;
+var touchedMenuFlg = false;
 
 window.onload = function () {
 
@@ -30,6 +30,10 @@ window.onload = function () {
 
 }
 
+/**
+ *
+ *
+ */
 function initTagSelectBox() {
     const box = document.getElementById('html-tag');
 }
@@ -50,6 +54,13 @@ function initFrontWndEvent() {
     });
 }
 
+/**
+ * メニューイベントを登録します。
+ * （要素以外をクリック（右クリック）するとメニューを非表示にする）
+ *
+ * @param {*} areaId
+ * @param {*} menuId
+ */
 function initMenuEvent(areaId, menuId) {
 
     const frame = document.getElementById(areaId);
@@ -61,16 +72,20 @@ function initMenuEvent(areaId, menuId) {
         menu.style.top = "-500px";
     });
     frame.addEventListener('contextmenu', function (e) {
-        if (!touchedCssMenu) {
+        if (!touchedMenuFlg) {
             menu.style.height = "0";
             menu.style.left = "-500px";
             menu.style.top = "-500px";
         } else {
-            touchedCssMenu = false;
+            touchedMenuFlg = false;
         }
     });
 }
 
+/**
+ *
+ *
+ */
 function initCssTree() {
     // addAdjacentHTML('css-frame', `
     // `);
@@ -103,18 +118,28 @@ function initCssTree() {
     addCssMenuOpenEvent(element);
 }
 
+/**
+ *
+ *
+ * @param {*} element
+ */
 function addCssMenuOpenEvent(element) {
     const menu = document.getElementById('css-menu');
+    const height = menu.children.length * 22;
     element.addEventListener('contextmenu', function (e) {
         menu.style.left = e.pageX + "px";
         menu.style.top = e.pageY + "px";
-        menu.style.height = "206px";
+        menu.style.height = `${height}px`;
         selectCssNode(element);
         initCssMenuEnable();
-        touchedCssMenu = true;
+        touchedMenuFlg = true;
     });
 }
 
+/**
+ *
+ *
+ */
 function initCssMenuEnable() {
     const list = document.getElementById('css-menu').children;
     const curNode = getSelectedElementForCssTree().parentNode;
@@ -144,6 +169,11 @@ function initCssMenuEnable() {
 }
 
 
+/**
+ *
+ *
+ * @param {*} obj
+ */
 function editCss(obj) {
 
     const elTreeWnd = document.getElementById('css-tree');
@@ -152,6 +182,11 @@ function editCss(obj) {
     disabledCssPropComponent(false);
 }
 
+/**
+ *
+ *
+ * @param {*} flg
+ */
 function disabledCssPropComponent(flg) {
     const compList = document.getElementById('css-prop').children;
     if (flg) {
@@ -167,6 +202,11 @@ function disabledCssPropComponent(flg) {
     }
 }
 
+/**
+ *
+ *
+ * @param {*} obj
+ */
 function editHtml(obj) {
 
     const elTreeWnd = document.getElementById('html-tree');
@@ -175,6 +215,11 @@ function editHtml(obj) {
     disabledHtmlPropComponent(false);
 }
 
+/**
+ *
+ *
+ * @param {*} flg
+ */
 function disabledHtmlPropComponent(flg) {
     {
         const compList = document.getElementById('cont-property').children;
@@ -209,6 +254,10 @@ function disabledHtmlPropComponent(flg) {
     }
 }
 
+/**
+ *
+ *
+ */
 function addChildOnCssTree() {
 
     /* 選択中の要素のノードを取得 */
@@ -489,7 +538,7 @@ function mappingHtmlProps(obj) {
     const idClass = props[1].innerHTML.split('|');
     idArea.value = idClass[0];
 
-    if(idClass.length >= 2) {
+    if (idClass.length >= 2) {
         classArea.value = idClass[1];
     } else {
         classArea.value = '';
@@ -533,13 +582,14 @@ function initHtmlTree() {
 
 function addHtmlMenuOpenEvent(element) {
     const menu = document.getElementById('html-menu');
+    const height = menu.children.length * 22;
     element.addEventListener('contextmenu', function (e) {
         menu.style.left = e.pageX + "px";
         menu.style.top = e.pageY + "px";
-        menu.style.height = "252px";
+        menu.style.height = `${height}px`;
         selectHtmlNode(element);
         initHtmlMenuEnable();
-        touchedCssMenu = true;
+        touchedMenuFlg = true;
     });
 }
 
@@ -547,6 +597,7 @@ function addHtmlMenuOpenEvent(element) {
 function initHtmlMenuEnable() {
     const list = document.getElementById('html-menu').children;
     const curNode = getSelectedElementForHtmlTree().parentNode;
+    const curLevel = getLevelFromId(curNode.id);
 
     for (let i = 0; i < list.length; i++) {
         list[i].classList.remove('disabled');
@@ -555,13 +606,19 @@ function initHtmlMenuEnable() {
     for (let i = 0; i < list.length; i++) {
         const item = list[i];
         switch (item.innerHTML) {
+            case 'Up':
+                if (curLevel == 1 || getUpperNode(curNode) == null) {
+                    item.classList.add('disabled');
+                }
+                break;
+            case 'Down':
             case 'Edit':
             case 'Remove self':
             case 'Remove self and child':
             case 'Cut':
             case 'Copy':
             case 'Insert parent':
-                if (getLevelFromId(curNode.id) == 1) {
+                if (curLevel == 1) {
                     item.classList.add('disabled');
                 }
                 break;
@@ -682,6 +739,60 @@ function addTextContent() {
     editHtml();
 }
 
+
+function moveUpHtml() {
+    const cur = getSelectedElementForHtmlTree().parentNode;
+    const root = cur.parentNode;
+
+    const curChildren = getProgenyChildren(cur, root.children);
+    const upperNode = getUpperNode(cur);
+
+  //  alert(upperNode.id);
+  //  alert(curChildren.length);
+
+    for(let i = 0; i < curChildren.length; i ++) {
+        const node = curChildren[i];
+
+        root.insertBefore(node, upperNode);
+    }
+}
+
+
+function moveUp() {
+
+}
+
+function getUpperNode(cur) {
+
+    const curLevel = getLevelFromId(cur.id);
+
+    let it = cur;
+    while (true) {
+
+        const prev = it.previousElementSibling;
+        const prevLevel = getLevelFromId(prev.id);
+        if (prevLevel == 1) {
+            break;
+        }
+        if (prevLevel == curLevel) {
+            return prev;
+        }
+        it = prev;
+    }
+    return null;
+}
+
+function getProgenyChildren(cur, list) {
+    const children = [];
+    for (let i = 0; i < list.length; i++) {
+        const node = list[i];
+        if (node.id.includes(cur.id)) {
+            children.push(node);
+        }
+    }
+    return children;
+}
+
 function editHtml(obj) {
 
     const elTreeWnd = document.getElementById('html-tree');
@@ -699,16 +810,16 @@ function enterHtml() {
     cur.innerHTML = '';
 
     let styleCode = '';
-    if(idEl != '') {
+    if (idEl != '') {
         styleCode += `
             <span style="color: #000;">id="</span>
             ${idEl}
             <span style="color: #000;">"</span>`;
     }
-    if(classEl != '') {
+    if (classEl != '') {
         styleCode += `
             <span style="color: #000;">class="</span>
-            ${classEl.replace('\n',' ')}
+            ${classEl.replace('\n', ' ')}
             <span style="color: #000;">"</span>`;
     }
     cur.insertAdjacentHTML('beforeend', `
@@ -802,8 +913,12 @@ function removeCssChild() {
     }
 }
 
+/**
+ *
+ *
+ */
 function buildPreview() {
-    
+
     const htmlNodeList = document.getElementById('html-tree').children;
     const cssNodeList = document.getElementById('css-tree').children;
 
@@ -812,22 +927,22 @@ function buildPreview() {
     preview.innerHTML = '';
 
     const readList = [];
-    for(let i = 1; i < htmlNodeList.length; i ++) {
-    
+    for (let i = 1; i < htmlNodeList.length; i++) {
+
         const node = htmlNodeList[i];
-        if(readList.includes(node.id)) continue;
+        if (readList.includes(node.id)) continue;
 
         buildHtmlRec(node, preview, readList, htmlNodeList);
     }
 
     const htmlSrc = document.getElementById('source-html');
-    htmlSrc.innerHTML = `<p>${preview.innerHTML.replace(/</g,'&lt;').replace(/>/,'&gt;')}</p>`;
+    htmlSrc.innerHTML = `<p>${preview.innerHTML.replace(/</g, '&lt;').replace(/>/, '&gt;')}</p>`;
 
     let rules = '';
-    for(let i = 1; i < cssNodeList.length; i ++) {
-    
+    for (let i = 1; i < cssNodeList.length; i++) {
+
         const node = cssNodeList[i];
- 
+
         const selector = getSelectorRec(node.children[3].children[0].innerHTML, node);
         const property = node.children[3].children[1].innerHTML;
 
@@ -835,6 +950,7 @@ function buildPreview() {
         rule += property.replace('\n', ' ');
         rule += '}\n';
         addCssRule('#preview-window>' + rule);
+        addCssRule('#front-window>' + rule);
 
         rules += rule + '<br>';
     }
@@ -843,33 +959,48 @@ function buildPreview() {
 
 }
 
+/**
+ *
+ *
+ * @param {*} str
+ * @param {*} node
+ * @returns
+ */
 function getSelectorRec(str, node) {
     let result = str;
     const parentId = node.children[3].children[2].innerHTML;
-    if(parentId != 'css_0') {
+    if (parentId != 'css_0') {
         const parentSelector = document.getElementById(parentId).children[3].children[0].innerHTML;
         result = parentSelector + '>' + str;
     }
     return result;
 }
 
+/**
+ *
+ *
+ * @param {*} node
+ * @param {*} parent
+ * @param {*} readList
+ * @param {*} htmlNodeList
+ */
 function buildHtmlRec(node, parent, readList, htmlNodeList) {
     readList.push(node.id);
     const paramEl = node.children[3];
     const tagName = paramEl.children[0].innerHTML;
 
-    if(!isTextContent(node)) {
+    if (!isTextContent(node)) {
         const prop = paramEl.children[1].innerHTML;
         let styleCode = '';
-        if(prop != '') {
+        if (prop != '') {
             let idClass = prop.split('|');
             let idName = idClass[0];
             let classNames = idClass[1].replace('\n', ' ');
 
-            if(idName != '') {
+            if (idName != '') {
                 styleCode += ` id="${idName}"`;
             }
-            if(classNames != '') {
+            if (classNames != '') {
                 styleCode += ` class="${classNames}"`;
             }
         }
@@ -878,14 +1009,14 @@ function buildHtmlRec(node, parent, readList, htmlNodeList) {
 
         const innerEl = parent.children[0];
 
-        for(let i = 1; i < htmlNodeList.length; i ++) {
+        for (let i = 1; i < htmlNodeList.length; i++) {
             const child = htmlNodeList[i];
 
-            if(child.id == node.id || readList.includes(child.id)) continue;
+            if (child.id == node.id || readList.includes(child.id)) continue;
             /* 子孫である */
             const isProgeny = child.id.includes(node.id);
 
-            if(isProgeny) {
+            if (isProgeny) {
                 buildHtmlRec(child, innerEl, readList, htmlNodeList);
             }
         }
